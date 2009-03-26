@@ -4,7 +4,7 @@ use warnings;
 package Jifty::Plugin::Authentication::Ldap;
 use base qw/Jifty::Plugin/;
 
-our $VERSION = '0.01';
+our $VERSION = '0.9';
 
 =head1 NAME
 
