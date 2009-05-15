@@ -8,7 +8,7 @@ our $VERSION = '0.9';
 
 =head1 NAME
 
-Jifty::Plugin::Authentication::Ldap - LDAP Authentication Plugin
+Jifty::Plugin::Authentication::Ldap - LDAP Authentication Plugin for Jifty
 
 =head1 DESCRIPTION
 
@@ -226,10 +226,17 @@ sub get_infos {
 
 L<Jifty::Manual::AccessControl>, L<Jifty::Plugin::User::Mixin::Model::User>, L<Net::LDAP>
 
+=head1 AUTHORS
+
+Yves Agostini, <yvesago@cpan.org>
+
+and others authors from Jifty (maxbaker, clkao, sartak, alexmv)
+
 =head1 LICENSE
 
-Jifty is Copyright 2005-2008 Best Practical Solutions, LLC.
-Jifty is distributed under the same terms as Perl itself.
+Copyright 2007-2009 Yves Agostini. All Rights Reserved.
+
+This program is free software and may be modified and distributed under the same terms as Perl itself.
 
 =cut
 

@@ -1,6 +1,6 @@
-use inc::Module::Install 0.46;
+use inc::Module::Install;
 name('Jifty-Plugin-Authentication-Ldap');
-version_from('lib/Jifty/Plugin/Authentication/Ldap.pm');
+all_from('lib/Jifty/Plugin/Authentication/Ldap.pm');
 
 requires('Jifty');
 requires('Net::LDAP');
