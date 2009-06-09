@@ -4,7 +4,7 @@ use warnings;
 package Jifty::Plugin::Authentication::Ldap;
 use base qw/Jifty::Plugin/;
 
-our $VERSION = '0.9';
+our $VERSION = '0.10';
 
 =head1 NAME
 
@@ -29,7 +29,7 @@ in etc/config.yml
        LDAPhost: ldap.univ.fr           # ldap server
        LDAPbase: ou=people,dc=.....     # base ldap
        LDAPName: displayname            # name to be displayed (cn givenname)
-       LDAPMail: mailLocalAddress       # email used optionnal
+       LDAPMail: mailLocalAddress       # email used optional
        LDAPuid: uid                     # optional
 
 

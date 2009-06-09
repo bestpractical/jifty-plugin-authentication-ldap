@@ -1,4 +1,7 @@
 Revision history for Perl module Jifty::Plugin::Authentication::Ldap
 
+0.10 Tue, 09 Jun 2009 20:39:53 +0200
+    - mistake in test path
+
 0.9  Tue, 15 May 2009 10:10:50 +0200
     - original version for CPAN

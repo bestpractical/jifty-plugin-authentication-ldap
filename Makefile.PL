@@ -6,7 +6,7 @@ requires('Jifty');
 requires('Net::LDAP');
 
 auto_install();
-tests(qw( t/*/t/*.t ));
+tests(qw( t/*.t ));
 
 install_share;
 
