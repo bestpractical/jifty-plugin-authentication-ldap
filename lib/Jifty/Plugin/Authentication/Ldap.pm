@@ -121,6 +121,11 @@ Your LDAP server.
 
 The base object where your users live.
 
+=item C<LDAPBindTemplate>
+
+Alternatively to C<LDAPbase>, you can specify here the whole DN string, with
+I<%u> as a placeholder for UID.
+
 =item C<LDAPMail>
 
 The DN that your organization uses to store Email addresses.  This
@@ -153,8 +158,70 @@ Other options you may want :
 See C<Net::LDAP> for a full list.  You can overwrite the defaults
 selectively or not at all.
 
+=item C<LDAPLoginHooks>
+
+Optional list of Perl functions that would be called after a successful login
+and after a corresponding User object is loaded and updated. The function is
+called with a hash array arguments, as follows:
+
+  username => string
+  user_object => User object
+  ldap => Net::LDAP object
+  infos => User attributes as returned by get_infos  
+
+=item C<LDAPFetchUserAttr>
+
+Optional list of LDAP user attributes fetched by get_infos. The values are
+returned to the login hook as arrayrefs.
+
 =back
 
+=head2 Example
+
+The following example authenticates the application against a MS Active
+Directory server for the domain MYDOMAIN. Each user entry has the attribute
+'department' which is used for authorization. C<LDAPbase> is used for user
+searching, and binding is done in a Microsoft way. The login hook checks
+if the user belongs to specific departments and updates the user record.
+
+
+ ######
+ #   etc/config.yml:  
+  Plugins: 
+    - User: {}
+    - Authentication::Ldap:
+       LDAPhost: ldap1.mydomain.com
+       LDAPbase: 'DC=mydomain,DC=com'
+       LDAPBindTemplate: 'MYDOMAIN\%u'
+       LDAPName: displayName
+       LDAPMail: mail
+       LDAPuid: cn
+       LDAPFetchUserAttr:
+         - department
+       LDAPLoginHooks:
+         - 'Myapp::Model::User::ldap_login_hook'
+
+  ######
+  #  package Myapp::Model::User;
+  sub ldap_login_hook
+  {
+      my %args = @_;
+
+      my $u = $args{'user_object'};    
+      my $department = $args{'infos'}->{'department'}[0];
+
+      my $editor = 0;
+      if( $department eq 'NOC' or
+          $department eq 'ENGINEERING' )
+      {
+          $editor = 1;
+      }
+
+      $u->__set( column => 'is_content_editor', value => $editor );
+  }
+
+
+  
 =cut
 
 sub init {
@@ -162,10 +229,21 @@ sub init {
     my %args = @_;
 
     $params{'Hostname'} = $args{LDAPhost};
-    $params{'base'}     = $args{LDAPbase} or die "Need LDAPbase in plugin config";
+    $params{'bind_template'} = $args{LDAPBindTemplate};
+    $params{'base'}     = $args{LDAPbase};
+    $params{'bind_template'} or $params{'base'} or
+        die "Need LDAPbase or LDAPBindTemplate in plugin config";
+        
     $params{'uid'}      = $args{LDAPuid}     || "uid";
     $params{'email'}    = $args{LDAPMail}    || "";
     $params{'name'}     = $args{LDAPName}    || "cn";
+    $params{'login_hooks'} = $args{LDAPLoginHooks}    || [];
+    $params{'fetch_attrs'} = $args{LDAPFetchUserAttr} || [];
+    
+    if( not $params{'bind_template'} ) {
+        $params{'bind_template'} = $params{'uid'}.'=%u,'.$params{'base'};
+    }
+    
     my $opts            = $args{LDAPOptions} || {};
 
     # Default options for Net::LDAP
@@ -180,6 +258,10 @@ sub init {
 
 sub LDAP {
     return $LDAP;
+}
+
+sub bind_template {
+    return $params{'bind_template'};
 }
 
 sub base {
@@ -202,22 +284,31 @@ sub opts {
     return $params{'opts'};
 };
 
+sub login_hooks {
+    return @{$params{'login_hooks'}};
+}
 
 sub get_infos {
     my ($self,$user) = @_;
 
     my $result = $self->LDAP()->search (
             base   => $self->base(),
-            filter => '(uid= '.$user.')',
-            attrs  =>  [$self->name(),$self->email()],
+            filter => '('.$self->uid().'='.$user.')',
+            attrs  =>  [$self->name(),$self->email(), @{$params{'fetch_attrs'}}],
             sizelimit => 1
              );
     $result->code && Jifty->log->error( 'LDAP uid=' . $user . ' ' . $result->error );
-    my ($ret) = $result->entries;
-    my $name = $ret->get_value($self->name());
-    my $email = $ret->get_value($self->email());
-
-    return ({ name => $name, email => $email });
+    my ($entry) = $result->entries;
+    my $ret = {
+        dn => $entry->dn(),
+        name => $entry->get_value($self->name()),
+        email => $entry->get_value($self->email()),
+    };    
+    foreach my $attr (@{$params{'fetch_attrs'}}) {
+        my @val = $entry->get_value($attr);
+        $ret->{$attr} = [ @val ];
+    }
+    return $ret;
 };
 
 

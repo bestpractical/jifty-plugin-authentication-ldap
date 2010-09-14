@@ -63,8 +63,9 @@ sub take_action {
     my $self = shift;
     my $username = $self->argument_value('ldap_id');
     my ($plugin)  = Jifty->find_plugin('Jifty::Plugin::Authentication::Ldap');
-    my $dn = $plugin->uid().'='.$username.','.
-        $plugin->base();
+    
+    my $dn = $plugin->bind_template();
+    $dn =~ s/\%u/$username/g;
 
     Jifty->log->debug( "dn = $dn" );
 
@@ -123,6 +124,16 @@ sub take_action {
     # Login!
     Jifty->web->current_user( $user );
     Jifty->web->session->set_cookie;
+
+    foreach my $proc ($plugin->login_hooks()) {
+        eval( '&' . $proc . '( username => $username, ' . 
+              'user_object => $u, ldap => $plugin->LDAP(), infos => $infos )' );
+        if( $@ ) {
+            Jifty->log->error('Cannot eval ' . $proc . ': ' . $@);
+            $self->result->error('Cannot eval ' . $proc . ': ' . $@);
+            return;
+        }
+    }
 
     # Success!
     $self->report_success;
