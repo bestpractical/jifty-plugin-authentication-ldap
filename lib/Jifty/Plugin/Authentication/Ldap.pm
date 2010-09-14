@@ -230,10 +230,7 @@ sub init {
 
     $params{'Hostname'} = $args{LDAPhost};
     $params{'bind_template'} = $args{LDAPBindTemplate};
-    $params{'base'}     = $args{LDAPbase};
-    $params{'bind_template'} or $params{'base'} or
-        die "Need LDAPbase or LDAPBindTemplate in plugin config";
-        
+    $params{'base'}     = $args{LDAPbase} or die "Need LDAPbase in plugin config";
     $params{'uid'}      = $args{LDAPuid}     || "uid";
     $params{'email'}    = $args{LDAPMail}    || "";
     $params{'name'}     = $args{LDAPName}    || "cn";
