@@ -119,7 +119,8 @@ Your LDAP server.
 
 =item C<LDAPbase>
 
-The base object where your users live.
+[Mandatory] The base object where your users live. If C<LDAPBindTemplate> is
+defined, C<LDAPbase> is only used for user search.
 
 =item C<LDAPBindTemplate>
 
