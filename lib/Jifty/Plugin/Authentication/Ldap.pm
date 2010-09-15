@@ -4,7 +4,7 @@ use warnings;
 package Jifty::Plugin::Authentication::Ldap;
 use base qw/Jifty::Plugin/;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 =head1 NAME
 
@@ -317,13 +317,13 @@ L<Jifty::Manual::AccessControl>, L<Jifty::Plugin::User::Mixin::Model::User>, L<N
 
 =head1 AUTHORS
 
-Yves Agostini, <yvesago@cpan.org>
+Yves Agostini, <yvesago@cpan.org>, Stanislav Sinyagin
 
 and others authors from Jifty (maxbaker, clkao, sartak, alexmv)
 
 =head1 LICENSE
 
-Copyright 2007-2009 Yves Agostini. All Rights Reserved.
+Copyright 2007-2010 Yves Agostini. All Rights Reserved.
 
 This program is free software and may be modified and distributed under the same terms as Perl itself.
 
