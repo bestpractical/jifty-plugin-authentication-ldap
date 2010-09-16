@@ -249,13 +249,19 @@ sub init {
     $opts->{'onerror'} = 'undef' unless defined $opts->{'onerror'};
     $opts->{'async'}   = 1       unless defined $opts->{'async'};
     $params{'opts'}    = $opts;
-
-    $LDAP = Net::LDAP->new($params{Hostname},%{$opts})
-        or die "Can't connect to LDAP server ",$params{Hostname};
 }
 
 sub LDAP {
+    if( not defined $LDAP ) {
+        $LDAP = Net::LDAP->new($params{Hostname},%{$params{'opts'}})
+            or die "Can't connect to LDAP server ",$params{Hostname};
+    }
     return $LDAP;
+}
+
+sub disconnect {
+    $LDAP->disconnect();
+    undef $LDAP;
 }
 
 sub bind_template {

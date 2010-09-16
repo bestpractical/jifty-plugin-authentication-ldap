@@ -141,6 +141,17 @@ sub take_action {
     return 1;
 };
 
+
+=head2 cleanup
+
+=cut
+
+
+sub cleanup {
+    my ($plugin)  = Jifty->find_plugin('Jifty::Plugin::Authentication::Ldap');
+    $plugin->disconnect();
+}
+
 =head2 report_success
 
 =cut
